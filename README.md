@@ -67,6 +67,13 @@ public class MainActivity extends ReactActivity {
 var SharedPreferences = require('react-native-shared-preferences');
 ```
 
+#### Configure name of preferences file. (Optional. Must be called before other functions.)
+
+ ```javascript
+SharedPreferences.setName("name");
+```
+
+
 #### Set Item
 
 ```javascript
