@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.*;
+import com.facebook.react.bridge.Promise;
 
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.common.MapBuilder;
@@ -81,7 +82,7 @@ public class RNSharedPreferencesModule extends ReactContextBaseJavaModule {
 	}
 
 	@Override
-		public String getName() {
+	public String getName() {
 			return "SharedPreferences";
 		}
 
@@ -92,42 +93,52 @@ public class RNSharedPreferencesModule extends ReactContextBaseJavaModule {
 
 
 	@ReactMethod
-		public void setItem(String key, String value) {
-			initSharedHandler();
-			SharedDataProvider.putSharedValue(key,value);
+	public void setItem(String key, String value) {
+		initSharedHandler();
+		SharedDataProvider.putSharedValue(key,value);
 
-		}
+	}
 
 	@ReactMethod
-		public void getItem(String key, Callback successCallback){
+	public void getItem(String key, Promise promise){
+		try{
 			initSharedHandler();
 			String value = SharedDataProvider.getSharedValue(key);
-			successCallback.invoke(value);
-
+			promise.resolve(value);
+		} catch(Exception e) {
+			promise.reject(e);
 		}
+
+	}
 
 
 	/***
 	 * getItems(): returns Native Array of Preferences for the given values
 	 * */
 	@ReactMethod
-		    public void getItems(ReadableArray keys, Callback successCallback){
-				initSharedHandler();
-			    String[] keysArray= new String[keys.size()];
-			    for (int i=0;i<keys.size();i++){
-				    keysArray[i]=keys.getString(i);
-			    }
-			    String[] [] values = SharedDataProvider.getMultiSharedValues(keysArray);
-			    WritableNativeArray data = new WritableNativeArray();
-			    for(int i=0;i<keys.size();i++){
-				    data.pushString(values[i][1]);
-			    }
-			    successCallback.invoke(data);
-		    }
+	public void getItems(ReadableArray keys, Promise promise){
+		try{
+			initSharedHandler();
+			String[] keysArray= new String[keys.size()];
+			for (int i=0;i<keys.size();i++){
+				keysArray[i]=keys.getString(i);
+			}
+			String[] [] values = SharedDataProvider.getMultiSharedValues(keysArray);
+			WritableNativeArray data = new WritableNativeArray();
+			for(int i=0;i<keys.size();i++){
+				data.pushString(values[i][1]);
+			}
+			promise.resolve(data);
+		} catch(Exception e) {
+			promise.reject(e);
+		}
+
+	}
 
 	@ReactMethod
-		public void getAll(Callback successCallback){
-		initSharedHandler();
+		public void getAll(Promise promise){
+		try{
+			initSharedHandler();
 			String[][] values = SharedDataProvider.getAllSharedValues();
 			WritableNativeArray data = new WritableNativeArray();
 			for(int i=0; i<values.length; i++){
@@ -136,46 +147,45 @@ public class RNSharedPreferencesModule extends ReactContextBaseJavaModule {
 				arr.pushString(values[i][1]);
 				data.pushArray(arr);
 			}
-			successCallback.invoke(data);
+			promise.resolve(data);
+		} catch(Exception e) {
+			promise.reject(e);
 		}
 
-	/*
-	   @ReactMethod
-	   public void multiGet(String[] keys, Callback successCallback){
+		}
 
-	   SharedHandler.init(getReactApplicationContext());
-	   String[][] value = SharedDataProvider.getMultiSharedValues(keys);
-	   successCallback.invoke(value);
-
-	   }	
-
-	 */
 
 	@ReactMethod
-		public void getAllKeys(Callback successCallback){
-		initSharedHandler();
+	public void getAllKeys(Promise promise){
+		try{
+			initSharedHandler();
 			String[] keys = SharedDataProvider.getAllKeys();
 			WritableNativeArray data = new WritableNativeArray();
 			for(int i=0; i<keys.length; i++){
 				data.pushString(keys[i]);
 			}
-			successCallback.invoke(data);
+			promise.resolve(data);
+		} catch(Exception e) {
+			promise.reject(e);
 		}
+
+	}
 
 
 
 	@ReactMethod
-		public void clear(){
+	public void clear(){
 		initSharedHandler();
-			SharedDataProvider.clear();
-		}
+		SharedDataProvider.clear();
+
+	}
 
 
 	@ReactMethod
-		public void removeItem(String key) {
+	public void removeItem(String key) {
 		initSharedHandler();
-			SharedDataProvider.deleteSharedValue(key);
-		}
+		SharedDataProvider.deleteSharedValue(key);
+	}
 
 
 }
